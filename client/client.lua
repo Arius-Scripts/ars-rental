@@ -165,14 +165,6 @@ CreateThread(function()
     end
 
 
-    RegisterCommand("dv", function()
-
-        local t =  lib.getNearbyVehicles(GetEntityCoords(cache.ped), 200, true)
-        for i ,v in pairs(t) do
-            DeleteEntity(v.vehicle)
-        end
-        
-    end)
 
 
     function notify(msg, type)
