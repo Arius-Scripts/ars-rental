@@ -10,4 +10,4 @@ This is a simple time based rental car system which allows you to have more than
 
 
 ##For preview
-https://forum.cfx.re/t/ars-rental-free-time-based-rental-script/4959371
+* https://forum.cfx.re/t/ars-rental-free-time-based-rental-script/4959371
