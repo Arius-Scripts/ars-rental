@@ -3,7 +3,6 @@ local rentedCar = false
 local function spawnRentalCar(vehicle, spawnPos, time)
     local playerPed = cache.ped
 
-    TriggerServerEvent("ars-rental:removeMoney", price)
     DoScreenFadeOut(500)
     Wait(500)
 
@@ -22,11 +21,10 @@ local function spawnRentalCar(vehicle, spawnPos, time)
     SetTimeout(time, function()
         local rentedVehicle = rentalCar
 
-        if IsPedInAnyVehicle(playerPed, true) then
-            plate = lib.getVehicleProperties(rentedVehicle).plate
-        end
+        local plate = lib.getVehicleProperties(rentedVehicle).plate
 
-        if IsPedInAnyVehicle(playerPed, true) and string.match(plate, Config.PlatePrefix) then
+
+        if cache.vehicle and string.match(plate, Config.PlatePrefix) then
             
             TaskLeaveVehicle(playerPed, rentedVehicle, 0)
             
@@ -35,23 +33,20 @@ local function spawnRentalCar(vehicle, spawnPos, time)
             end
             
             Wait(500)
-            
             NetworkFadeOutEntity(rentedVehicle, true, true)
-            
             Wait(100)
             
-            DeleteEntity(rentedVehicle)
+            DeleteVehicle(rentedVehicle)
             notify("Vehicle returned to the Ars Rental Time UP", "success")
             rentedCar = false
         else
+
             if DoesEntityExist(rentalCar) then
-                DeleteEntity(rentalCar)
-                notify("Vehicle returned to the Ars Rental Time UP", "success")
-                rentedCar = false
-            else
-                notify("Vehicle returned to the Ars Rental Time UP", "success")
-                rentedCar = false
+                DeleteVehicle(rentalCar)
             end
+
+            notify("Vehicle returned to the Ars Rental Time UP", "success")
+            rentedCar = false
         end
     end)
 end
@@ -97,6 +92,7 @@ local function rentCar(car, price, sp)
                 cancel = true
             })
             if alert == "confirm" then
+                TriggerServerEvent("ars-rental:removeMoney", price)
                 spawnRentalCar(car, sp, time)
             end
         else
