@@ -8,7 +8,6 @@ lua54 "yes"
 client_scripts {"client/client.lua"}
 
 
-a
 server_script {"server/server.lua"}
 
 shared_scripts {
