@@ -6,6 +6,7 @@ lua54 "yes"
 
 client_scripts {
     "client/functions/utils.lua",
+    "client/functions/functions.lua",
     "client/client.lua"
 }
 
