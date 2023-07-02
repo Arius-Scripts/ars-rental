@@ -60,7 +60,7 @@ local function calculateRentalCost(price, time, method)
     return cost, time
 end
 
-local function rentCar(car, price, sp)
+local function rentCar(vehicle)
     if rentedCar then return end
 
     local input = lib.inputDialog('Ars Rental', {
@@ -81,7 +81,7 @@ local function rentCar(car, price, sp)
     local time = input[1]
     local method = input[2]
 
-    local rentalCost, rentalTime = calculateRentalCost(price, time, method)
+    local rentalCost, rentalTime = calculateRentalCost(vehicle.price, time, method)
     local money = exports.ox_inventory:Search("count", "money", nil)
 
     if money >= rentalCost then
@@ -92,8 +92,8 @@ local function rentCar(car, price, sp)
             cancel = true
         })
         if alert == "confirm" then
-            TriggerServerEvent("ars-rental:removeMoney", rentalCost)
-            spawnRentalCar(car, sp, rentalTime)
+            TriggerServerEvent("ars-rental:removeMoney", { price = rentalCost, coords = vehicle.spawnPosition })
+            spawnRentalCar(vehicle.car, vehicle.spawnPosition, rentalTime)
         end
     else
         utils.showNotification("You dont have enough money", "error")
@@ -111,7 +111,7 @@ function openRentalMenu(data)
             icon = vehicle.image and vehicle.image or
                 "https://cdn.discordapp.com/attachments/1017732810200596500/1102271364313907220/logo.png",
             onSelect = function()
-                rentCar(vehicle.car, vehicle.price, vehicle.spawnPosition)
+                rentCar(vehicle)
             end,
         })
     end
