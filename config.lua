@@ -1,6 +1,6 @@
 Config = {}
 
-Config.Target = true
+Config.Target = false
 
 -- Multiplier per minutes/hours
 Config.mpMinutes = 60 -- price * Config.Minutes * time >> es. 30000 * 60 * 15 / 200
@@ -10,7 +10,7 @@ Config.PlatePrefix = "RENTAL"
 
 Config.Rentals = {
     {
-        pos = vector4(-1058.2222900391, -2717.5029296875, 19.02063369751, 321.99890136719),
+        pos = vector4(-1058.2222900391, -2717.5029296875, 21.02063369751, 321.99890136719),
         pedModel = "a_m_m_bevhills_02",
         blip = {
             enable = true,
