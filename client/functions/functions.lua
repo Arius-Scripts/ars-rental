@@ -6,125 +6,121 @@ local function spawnRentalCar(vehicle, spawnPos, time)
     DoScreenFadeOut(500)
     Wait(500)
 
-    local rentalCar = createVehicle(vehicle, spawnPos, true, false)
+    local rentalCar = utils.createVehicle(vehicle, spawnPos, true, false)
 
-    lib.setVehicleProperties(rentalCar, {plate = Config.PlatePrefix})
+    lib.setVehicleProperties(rentalCar, { plate = Config.PlatePrefix })
 
     Wait(500)
     DoScreenFadeIn(600)
-    
+
     rentedCar = true
-    notify("You rented a vehicle", "success")
+    utils.showNotification("You rented a vehicle", "success")
 
     TaskEnterVehicle(playerPed, rentalCar, -1, -1, 1.0, 1, 0)
 
     SetTimeout(time, function()
-        local rentedVehicle = rentalCar
+        if rentalCar then
+            if cache.vehicle then
+                TaskLeaveVehicle(playerPed, rentalCar, 0)
 
-        local plate = lib.getVehicleProperties(rentedVehicle).plate
+                while cache.vehicle do
+                    Wait(10)
+                end
 
+                Wait(500)
+                NetworkFadeOutEntity(rentalCar, true, true)
+                Wait(100)
 
-        if cache.vehicle and string.match(plate, Config.PlatePrefix) then
-            
-            TaskLeaveVehicle(playerPed, rentedVehicle, 0)
-            
-            while IsPedInVehicle(playerPed, rentedVehicle, true) do
-                Wait(0)
-            end
-            
-            Wait(500)
-            NetworkFadeOutEntity(rentedVehicle, true, true)
-            Wait(100)
-            
-            DeleteVehicle(rentedVehicle)
-            notify("Vehicle returned to the Ars Rental Time UP", "success")
-            rentedCar = false
-        else
-
-            if DoesEntityExist(rentalCar) then
                 DeleteVehicle(rentalCar)
-            end
+                utils.showNotification("Vehicle returned to the Ars Rental Time UP", "success")
+                rentedCar = false
+            else
+                if DoesEntityExist(rentalCar) then
+                    DeleteVehicle(rentalCar)
+                end
 
-            notify("Vehicle returned to the Ars Rental Time UP", "success")
-            rentedCar = false
+                utils.showNotification("Vehicle returned to the Ars Rental Time UP", "success")
+                rentedCar = false
+            end
         end
     end)
 end
 
+local function calculateRentalCost(price, time, method)
+    local cost = 0
+
+    if method == "minutes" then
+        cost = math.ceil(price * Config.mpMinutes * time / 200)
+        time = time * 60000
+    elseif method == "hours" then
+        cost = math.ceil(price * Config.mpHours * time / 100)
+        time = time * 3600000
+    end
+
+    return cost, time
+end
+
 local function rentCar(car, price, sp)
+    if rentedCar then return end
 
     local input = lib.inputDialog('Ars Rental', {
         { type = "number", label = "Time", default = 1 },
-        { type = "select", label = "Time", default = "seconds", options = {
-            {value = "seconds", "Seconds"},
-            {value = "minutes", "Minutes"},
-            {value = "Hours", "Hours"},
-        }},
-
+        {
+            type = "select",
+            label = "Time",
+            default = "minutes",
+            options = {
+                { value = "minutes", "Minutes" },
+                { value = "Hours",   "Hours" },
+            }
+        },
     })
-    
+
     if not input then return end
 
     local time = input[1]
     local method = input[2]
 
-    if method == "seconds" then
-        price = math.ceil(price * Config.mpSeconds * time / 360)
-        time = time * 1000
-    end
+    local rentalCost, rentalTime = calculateRentalCost(price, time, method)
+    local money = exports.ox_inventory:Search("count", "money", nil)
 
-    if method == "minutes" then
-        price = math.ceil(price * Config.mpMinutes * time / 200)
-        time = time * 60000
-    end
-
-    if hours == "hours" then
-        price = math.ceil(price * Config.mpHours * time / 100)
-        time = time * 3600000
-    end
-
-    lib.callback('ars-rental:checkMoney', false, function(money)
-        if money >= price then
-            local alert = lib.alertDialog({
-                header = 'Ars Rental',
-                content = 'Are you sure you want to  continue? \n the total price would be '..price.."$",
-                centered = true,
-                cancel = true
-            })
-            if alert == "confirm" then
-                TriggerServerEvent("ars-rental:removeMoney", price)
-                spawnRentalCar(car, sp, time)
-            end
-        else
-            notify("You dont have enough money", "error")
+    if money >= rentalCost then
+        local alert = lib.alertDialog({
+            header = 'Ars Rental',
+            content = 'Are you sure you want to  continue? \n the total price would be ' .. rentalCost .. "$",
+            centered = true,
+            cancel = true
+        })
+        if alert == "confirm" then
+            TriggerServerEvent("ars-rental:removeMoney", rentalCost)
+            spawnRentalCar(car, sp, rentalTime)
         end
-    end)
-
+    else
+        utils.showNotification("You dont have enough money", "error")
+    end
 end
 
-function rentalMenu(zone)
+function openRentalMenu(data)
     local vehicles = {}
 
-    for i=1, #Config.Positions[zone].vehicles, 1 do
-        local vehicle = Config.Positions[zone].vehicles[i]
+    for i = 1, #data.vehicles, 1 do
+        local vehicle = data.vehicles[i]
         table.insert(vehicles, {
-            label = vehicle.label, description = "Price $"..vehicle.price, args = {car = vehicle.car, price = vehicle.price, sp = vehicle.spawnPosition}
+            title = vehicle.label,
+            description = "Price $" .. vehicle.price,
+            icon = vehicle.image and vehicle.image or
+                "https://cdn.discordapp.com/attachments/1017732810200596500/1102271364313907220/logo.png",
+            onSelect = function()
+                rentCar(vehicle.car, vehicle.price, vehicle.spawnPosition)
+            end,
         })
     end
 
-    lib.registerMenu({
-        id = 'rantal',
-        title = '|Ars Rental|',
-        position = 'top-right',
-        options =  vehicles
-    }, function(selected, scrollIndex, args)
-        if args and not rentedCar then
-            rentCar(args.car, args.price, args.sp)
-        else
-            notify("you already have an rented car outside", "error")
-        end
-    end)
-    
-    lib.showMenu('rantal')
-end
+    lib.registerContext({
+        id = 'ars_rental_menu',
+        title = 'Rent vehicle',
+        options = vehicles
+    })
 
+    lib.showContext('ars_rental_menu')
+end

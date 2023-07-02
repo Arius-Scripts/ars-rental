@@ -2,8 +2,7 @@ Config = {}
 
 Config.Target = true
 
--- Multiplier per second/minutes/hours
-Config.mpSeconds = 1  -- price * Config.Seconds * time >> es. 30000 * 1 * 15 / 360
+-- Multiplier per minutes/hours
 Config.mpMinutes = 60 -- price * Config.Minutes * time >> es. 30000 * 60 * 15 / 200
 Config.mpHours = 360  -- price * Config.Hours * time >> es. 30000 * 360 * 15 / 360
 
@@ -21,9 +20,27 @@ Config.Rentals = {
             name   = "Ars Rental"
         },
         vehicles = {
-            { label = "adder",    car = "adder",    price = 30000, spawnPosition = vector4(-1054, -2716, 21, 52) },
-            { label = "bmx",      car = "bmx",      price = 250,   spawnPosition = vector4(-1054, -2716, 21, 52) },
-            { label = "zentorno", car = "zentorno", price = 35000, spawnPosition = vector4(-1054, -2716, 21, 52) },
+            {
+                label = "Adder",
+                car = "adder",
+                price = 30000,
+                image = "https://cdn.discordapp.com/attachments/1017732810200596500/1102271364313907220/logo.png",
+                spawnPosition = vector4(-1054, -2716, 21, 52)
+            },
+            {
+                label = "Bmx",
+                car = "bmx",
+                price = 250,
+                image = false,
+                spawnPosition = vector4(-1054, -2716, 21, 52)
+            },
+            {
+                label = "Zentorno",
+                car = "zentorno",
+                price = 35000,
+                image = false,
+                spawnPosition = vector4(-1054, -2716, 21, 52)
+            },
         }
     },
 }
