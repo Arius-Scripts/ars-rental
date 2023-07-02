@@ -7,3 +7,5 @@ RegisterNetEvent("ars-rental:removeMoney", function(data)
 
     exports.ox_inventory:RemoveItem(source, 'money', data.price)
 end)
+
+lib.versionCheck('Arius-Development/ars-rental')
