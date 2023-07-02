@@ -107,7 +107,7 @@ function openRentalMenu(data)
         local vehicle = data.vehicles[i]
         table.insert(vehicles, {
             title = vehicle.label,
-            description = "Price $" .. vehicle.price,
+            description = "Vehicle Price $" .. vehicle.price,
             icon = vehicle.image and vehicle.image or
                 "https://cdn.discordapp.com/attachments/1017732810200596500/1102271364313907220/logo.png",
             onSelect = function()
