@@ -68,7 +68,7 @@ for i = 1, #Config.Rentals do
         SetBlipSprite(blip, cfg.blip.type)
         SetBlipDisplay(blip, 4)
         SetBlipScale(blip, cfg.blip.scale)
-        SetBlipColour(blip, cfg.blip.type)
+        SetBlipColour(blip, cfg.blip.color)
         SetBlipAsShortRange(blip, true)
         BeginTextCommandSetBlipName("STRING")
         AddTextComponentString(cfg.blip.name)
